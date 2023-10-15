@@ -1,5 +1,5 @@
 import sqlite3 as sql
-from flask import Flask
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 conn = None
@@ -25,4 +25,13 @@ except sql.Error as e:
 finally:
     if conn:
         conn.close()
+
+@app.route('/endpoint', methods=['POST'])
+def receive_data():
+    data = request.get_json()
+    print('Datos recibidos:', data)
+    return jsonify({'message': 'Datos recibidos correctamente'})
+
+if __name__ == '__main__':
+    app.run()
 

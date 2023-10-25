@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>ProjectDS</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    </head>
+    <body>
+        <!-- Header section -->
+        <header class="header">
+            <h1>WELCOME</h1>
+        </header>
+
+        <!-- Main content section -->
+        <main>
+            <div class="container">
+                <form action="/download" method="POST">
+                    <label for="input">PROJECT BY DC</label>
+                    <input type="text" name="link" id="input" placeholder="Your link here">
+                    <button type="submit"><span>DOWNLOAD</span></button>
+                </form>
+            </div>
+        </main>
+    
+    </body>
+</html>

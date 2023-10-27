@@ -19,13 +19,13 @@ def download():
                 video.download('static')
                 return redirect(url_for('index'))
             except ValueError:
-                flash('Error: Invalid URL')
+                print('Error: Invalid URL')
                 return redirect(url_for('index'))
             except Exception as e:
-                flash(f'Error: {e}')
+                print(f'Error: {e}')
                 return redirect(url_for('index'))
         else:
-            flash('Error: URL field is empty')
+            print('Error: URL field is empty')
             return redirect(url_for('index'))
     else:
         return redirect(url_for('index'))

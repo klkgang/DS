@@ -5,8 +5,7 @@ This is a simple web application that allows you to download YouTube videos by e
 ## Installation
 
 1. Clone this repository to your local machine.
-2. Install the required dependencies by running `pip install -r requirements.txt`.
-3. Start the application by running `python main.py`.
+2. Start the application by running `python main.py`.
 
 ## Usage
 
@@ -18,7 +17,6 @@ This is a simple web application that allows you to download YouTube videos by e
 
 - Supports downloading YouTube videos in MP4 format.
 - Automatically sanitizes the video filename to prevent errors.
-- Shortens the video filename to a maximum of 50 characters to prevent long filenames.
 - Displays error messages if the URL is invalid or the download fails.
 - Allows you to download the video and immediately stream it to the client.
 

@@ -1,69 +1,53 @@
 #import the necessary modules
-from pytube import YouTube
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash, after_this_request
-import os
-from werkzeug.utils import secure_filename
+from pytube import YouTube 
+from flask import Flask, render_template, request
+from flask import redirect, url_for, Response
+from urllib.request import urlopen
+from flask import stream_with_context
+import re 
+# end of imports
+
+#function to sanitize the filename 
+def sanitize_filename(filename):
+    filename = re.sub(r'[\\/*?:"<>|]', "", filename)
+    filename = filename[:45] # limit filename length because long names cause bugs 
+    return filename.replace(' ', '_')
 
 
-# create the flask app
+#create flask object
 app = Flask(__name__)
-app.secret_key = 'lsdgvfkuhgfkiiksdgfffozisdiygkkjhvitr87'
 
-#defiine the main route
+
+#home page 
 @app.route('/')
-def index():
+def home():
     return render_template('index.html')
 
-#the download route to the console
-@app.route('/download', methods=['POST'])
-def download():
-    url = request.form.get('url')
-    if not url:
-        flash('Error: URL field is empty')
-        return redirect(url_for('index'))
-    try:
-        yt = YouTube(url)
-        video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-        filename = secure_filename(video.default_filename)
-        filepath = os.path.join(app.static_folder, filename)
-        video.download(app.static_folder)
-        flash('Download successful')
-        return send_file(filepath, as_attachment=True)
-    except ValueError:
-        flash('Error: Invalid URL')
-    except Exception as e:
-        flash(f'Error: {e}')
-    return redirect(url_for('index'))
-
-#the download route to the browser
+#route to  get the url
 @app.route('/download2', methods=['POST'])
-def downloadq():
-    url = request.form.get('url')
-    if not url:
-        flash('Error: URL field is empty')
-        return redirect(url_for('index'))
-    try:
-        yt = YouTube(url)
-        video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-        filename = secure_filename(video.default_filename)
-        filepath = os.path.join(app.static_folder, filename)
-        video.download(app.static_folder)
-        flash('Download successful')
-        @after_this_request
-        def remove_file(response):
-            if os.path.exists(filepath):
-                try:
-                    os.remove(filepath)
-                except Exception as error:
-                    app.logger.error("Error removing downloaded file handle: %s", error)
-            return response
-        return send_file(filepath, as_attachment=True)
-    except ValueError:
-        flash('Error: Invalid URL')
-    except Exception as e:
-        flash(f'Error: {e}')
-    return redirect(url_for('index'))
+def get_url():
+    url = request.form['url']
+    return redirect(url_for('stream', pathurl=url))
 
-#start the app
+#route to download the video
+@app.route('/stream/<path:pathurl>')
+def stream(pathurl):
+    yt = YouTube(pathurl)
+    video = yt.streams.first()
+    stream_url = video.url
+    video_title = sanitize_filename(yt.title)
+    print(video_title)
+
+
+    def generate():
+        with urlopen(stream_url) as f:
+            for chunk in iter(lambda: f.read(4096), b''):
+                yield chunk
+
+    response = Response(stream_with_context(generate()), mimetype='video/mp4')
+    response.headers['Content-Disposition'] = f'attachment; filename={video_title}.mp4'
+    return response
+
+
 if __name__ == '__main__':
     app.run(debug=True)
